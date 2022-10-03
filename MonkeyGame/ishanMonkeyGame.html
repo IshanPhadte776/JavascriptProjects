@@ -1,0 +1,327 @@
+<DOCTYPE! html>
+    <html>
+
+    <head>
+        <title> </title>
+        <style>
+            canvas {
+                border-width: 5px;
+                border-style: ridge;
+                border-color: #FF0000;
+            }
+
+            bananaImage {
+                height: 100px;
+                width: 100px; 
+            }
+
+        </style>
+
+
+    </head>
+
+    <body>
+
+ <!--Issue with bananaImage-->       
+        <canvas id="testCanvas" width="640" height="400"></canvas>
+
+        <script>
+            //Sets up Canvas
+            var canvas = document.getElementById("testCanvas");
+            var ctx = canvas.getContext("2d");
+
+            //Gives Canvas Measurements
+            var canvasWidth = canvas.width;
+            var canvasHeight = canvas.height;
+
+            //Allows Images to be given a variable to determine if the image is being displayed 
+            // Displayed = True       Disappeared = False
+            var bgReady = false;
+            var bgImage = new Image();
+            var monkeyReady = false;
+            var monkeyImage = new Image();
+            var cocunutReady = false;
+            var coconutImage = new Image();
+            var bananaReady = false;
+            var bananaImage = new Image();
+
+            var mx = canvasWidth / 2;     // start the monkey in the centre
+            var my = canvasHeight / 2;
+            var mdx = 0;			    // set initial speed to 0
+            var mdy = 0;              // dx / dy means changing speed 
+            var mspeed = 2;		    // create a variable for speed
+            var mLives = 2;		    // create a variable for lives
+
+            var cx = 400;                // ditto 
+            var cy = 300;
+            var cspeed = 2;
+            var cdx = cspeed - 1;
+            var cdy = cspeed;
+
+            var bx = 200;
+            var by = 400;               //ditto
+            var bspeed = 2;
+            var bdx = cspeed - 1;
+            var bdy = cspeed;
+            var bheight = 30;
+            var bwidth = 32; 
+
+// Math Floor Generates a number from 0 to canvasWidth/Height
+            var bx = Math.floor(Math.random() * canvasWidth);      
+            var by = Math.floor(Math.random() * canvasHeight);
+// bananasEatan = Score
+            var bananasEaten = 0;
+
+// When game starts, all buttons start unpressed until a button is pressed.
+            var rightPressed = false;
+            var leftPressed = false;
+            var upPressed = false;
+            var downPressed = false;
+
+            var collided = false;
+
+// Pulls Images from Folder
+            bgImage.onload = function () {
+                bgReady = true;
+            };
+            bgImage.src = "background.png";
+
+
+            monkeyImage.onload = function () {
+                monkeyReady = true;
+            };
+            monkeyImage.src = "monkey.png";
+
+
+            coconutImage.onload = function () {
+                coconutReady = true;
+            };
+            coconutImage.src = "coconut.png";
+
+            bananaImage.onload = function () {
+                bananaReady = true;
+            };
+            bananaImage.src = "banana.png";
+
+//Allows Key Up/Key Down Handlers 
+            document.addEventListener("keydown", keyDownHandler, false);
+            document.addEventListener("keyup", keyUpHandler, false);
+
+// Allows Collision
+//Not Required
+            function collision() {
+
+
+// This is for Monkey and Banana 
+            var collide = false;
+ 
+            if (by >= my && by <= my + monkeyImage.height) {
+                if (mx + monkeyImage.height >= bx && mx + bananaImage.height <= bx + bananaImage.width) {
+                    collide = true;
+                }
+                if (mx >= bx && mx <= bx + monkeyImage.width) {
+                    collide = true;
+                }
+            }
+            if (my > by && my < by + monkeyImage.height) {
+
+
+                if (mx + monkeyImage.width > bx && mx + bananaImage.width < bx + monkeyImage.width) {
+                    collide = true;
+                }
+                if (mx > by && mx < bx + bananaImage.width) {
+                    collide = true;
+                }
+            }
+
+            }
+
+        
+
+
+            // function to reset the game and the variables 
+            function reset () {
+
+                var mx = canvasWidth / 2;
+                var my = canvasHeight / 2;
+                var mLives = 3;
+
+                var cx = 400;
+                var cy = 300;
+
+                var bx = 200;
+                var by = 400;
+                var bananasEaten = 0;
+
+            }
+
+            // function for displaying score
+            function displayScoreLives() {
+                ctx.font = "48px Arial";
+                ctx.fillStyle = 'black';
+                var livesStr = "Lives: " + mLives;
+                ctx.fillText(livesStr, 10, 50);
+            }
+
+            function displayScoreBananas() {
+                ctx.font = "48px Arial";
+                ctx.fillStyle = 'black';
+                var livesStr = "Bananas: " + bananasEaten;
+                ctx.fillText(livesStr, 400, 50);
+            }
+
+
+            // check for collision with banana
+            function getBanana() {
+                if (mx <= (bx + bananaImage.width) && bx <= (mx + monkeyImage.width)) {
+                    if (my <= (by + bananaImage.height) && by <= (my + monkeyImage.height)) {
+                        // If collision occurs, Banana Points +1
+                        bananasEaten = bananasEaten + 1;
+                        // If collision occurs, banana goes to random spot on canvas
+                        bx = Math.floor(Math.random() * (canvasWidth - bananaImage.width));
+                        by = Math.floor(Math.random() * (canvasHeight - bananaImage.height));
+                    }
+                }
+            }
+            // check for collison with coconut 
+            function getCoconut() {
+                if (mx <= (cx + coconutImage.width) && cx <= (mx + monkeyImage.width)) {
+                    if (my <= (cy + coconutImage.height) && cy <= (my + monkeyImage.height)) {
+                        // If collision occurs, Monkey Lives drops by 1 
+                        mLives = mLives - 1;
+                      // If collision occurs, coconut goes to random spot on canvas
+                        cx = Math.floor(Math.random() * (canvasWidth - coconutImage.width));
+                        cy = Math.floor(Math.random() * (canvasHeight - coconutImage.height));
+                    }
+                }
+            }
+
+          // If 39 is pressed (Right Arrow) , Right is true pressed
+          // KeyDown = Key is Pressed
+            function keyDownHandler(e) {
+                if (e.keyCode == 39) {
+                    rightPressed = true;
+                } else if (e.keyCode == 37) {
+                    leftPressed = true;
+                } else if (e.keyCode == 38) {
+                    upPressed = true;
+                } else if (e.keyCode == 40) {
+                    downPressed = true;
+                }
+            }
+          // KeyUp = Key isn't Pressed
+            function keyUpHandler(e) {
+                if (e.keyCode == 39) {
+                    rightPressed = false;
+                } else if (e.keyCode == 37) {
+                    leftPressed = false;
+                } else if (e.keyCode == 38) {
+                    upPressed = false;
+                } else if (e.keyCode == 40) {
+                    downPressed = false;
+                }
+            }
+
+            // Main function
+            function draw() {
+
+             // Draws Images on image's x and y
+                if (bgReady) {
+                    ctx.drawImage(bgImage, 0, 0);
+                }
+
+                if (monkeyImage) {
+                    ctx.drawImage(monkeyImage, mx, my);
+
+                }
+
+                if (coconutImage) {
+                    ctx.drawImage(coconutImage, cx, cy);
+
+                }
+
+                if (bananaImage) {
+                    ctx.drawImage(bananaImage, bx, by);
+
+                }
+                 
+                // If Button is pressed, image moves = to speed value 
+                if (rightPressed == true) {
+                    mdx = mspeed;
+                } else if (leftPressed == true) {
+                    mdx = -mspeed;
+                } else if (upPressed == true) {
+                    mdy = -mspeed;
+                } else if (downPressed == true) {
+                    mdy = mspeed
+                }
+
+                // If no button is pressed, changing x and changing y is reset to 0 to prevent movement
+                if (rightPressed == false && leftPressed == false && upPressed == false && downPressed == false) {
+                    mdx = 0;
+                    mdy = 0;
+                }
+ // Allows Bouncing off walls
+                if (cx <= 0 || cx >= (canvasWidth - coconutImage.width)) {
+                    cdx = -cdx;
+                }
+                if (cy <= 0 || cy >= (canvasHeight - coconutImage.height)) {
+                    cdy = -cdy;
+                }
+
+                if (bx <= 0 || bx >= (canvasWidth - bananaImage.width)) {
+                    bdx = -bdx;
+                }
+                if (by <= 0 || by >= (canvasHeight - bananaImage.height)) {
+                    bdy = -bdy;
+                }
+
+                if (mx <= 0 || mx >= (canvasWidth - monkeyImage.width)) {
+                    mdx = -mdx;
+                }
+                if (my <= 0 || my >= (canvasHeight - monkeyImage.height)) {
+                    mdy = -mdy;
+                }
+
+                
+            // Monkey x = Monkey x + Monkey changing x
+                mx = mx + mdx;
+                my = my + mdy;
+
+                cx = cx + cdx;
+                cy = cy + cdy;
+
+                bx = bx + bdx;
+                by = by + bdy;
+
+// Calls Functions for collsion and Display score
+                getBanana()
+
+                getCoconut()
+
+                displayScoreBananas()
+
+                displayScoreLives()
+
+
+                // display alert if person loses
+                if (mLives == 0) {
+                    alert("Sorry you are out of lives!!!");
+                    reset();
+                }
+
+                //display alert if person wins
+                if (bananasEaten == 10) {
+                    alert("Congratulations, you are awesome!!");
+                    reset();
+                }
+
+            }
+// Calls Draw every 10 miliseconds
+             setInterval(draw, 10);
+            
+        </script>
+
+    </body>
+
+    </html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> JavaScriptFinalProject </title>
+    <style>
+        
+        canvas {
+            border-width: 10px;
+            border-style: solid;
+            border-color: blueviolet;
+        }
+
+        h1 {
+            border-width: 8px;
+            border-style: solid;
+            text-align: center;
+            width: 300px;
+        }
+
+        h2 {
+            border-width: 6px;
+            border-style: solid;
+            text-align: center;
+            width: 250px;
+        }
+
+        h3 {
+            border-width: 4px;
+            border-style: solid;
+            text-align: center;
+            width: 200px;
+        }
+
+        body {
+            background-color: deepskyblue
+        }
+
+        button {
+            height: 50px;
+            width: 200px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: blue
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="testCanvas" width="800" height="500"></canvas>
+
+    <script>
+        // Creates Canvas
+        var canvas = document.getElementById("testCanvas");
+        var ctx = canvas.getContext("2d");
+
+        // Sets up Canvas Height and Width
+        var canvasWidth = canvas.width;
+        var canvasHeight = canvas.height;
+
+        // Sets up Variables for BowlingBall
+        var bowlingBallReady = false;
+        var bowlingBallImage = new Image();   
+
+        // x and y coordinates for image
+        var bBx = 300;
+        var bBy = 100;
+
+        // Height and Width of Image
+        var bBImageHeight = 84;
+        var bBImageWidth = 83;
+
+        // Speed in-which the image is travelling
+        var bSpeed = 4;
+        // The amount of change in the x or y coordinate
+        var bBdx = bSpeed - 1;
+        var bBdy = -bSpeed;
+
+        // Sets up Netting Image
+        var nettingReady = false;
+        var nettingImage = new Image();
+        var nx = 600;
+        var ny = 200;
+        var nettingImageHeight = 313;
+        var nettingImageWidth = 347;
+ 
+        // Sets up Birdie Image
+        var birdieReady = false;
+        var birdieImage = new Image();
+        var bx = 300;
+        var by = 300;
+        var birdieImageHeight = 73;
+        var birdieImageWidth = 86;
+        var bSpeed = 4;
+        var bdx = bSpeed - 2;
+        var bdy = -bSpeed;
+ /*
+    // * Unfinished Code which the goal was to randomize the game with speeds and starting points
+            
+            // Variable Set up for both Start Game and when the code is first-loaded up
+            var bBx = Math.floor(Math.random() * canvasWidth);
+            var bBy = Math.floor(Math.random() * canvasHeight);  
+            var bx = Math.floor(Math.random() * canvasWidth);
+            var by = 0;
+
+*/
+
+        // Sets up Racket Image
+        var racketReady = false;
+        var racketImage = new Image();
+        var rx = 180;
+        var ry = 350;
+        var racketImageHeight = 62;
+        var racketImageWidth = 90;
+        var rSpeed = 2;
+        var rdx = 50;
+        var rdy = 50;
+
+
+        // Sets up p1 Image
+        var p1Ready = false;
+        var p1Image = new Image();
+        var p1x = 100;
+        var p1y = 310;
+        var p1ImageHeight = 143;
+        var p1ImageWidth = 74;
+        var p1speed = 2;
+        var p1dx = 50;
+        var p1dy = 50;
+        var p1Score = 0;
+        var p1Lives = 1;
+
+        // When file is first started up, tells computer to unpress all buttons until further pressed
+        var p1DPressed = false;
+        var p1APressed = false;
+
+        var rDPressed = false;
+        var rAPressed = false;
+
+        // Allows collison with objects
+        var collided = false;
+
+        // Pulls netting Image from Folder
+        nettingImage.onload = function () {
+            nettingReady = true;
+        };
+        nettingImage.src = "netting.png";
+
+        // Pulls p1 Image from Folder
+        p1Image.onload = function () {
+            p1Ready = true;
+        };
+        p1Image.src = "p1.jpeg";
+
+        // Pulls birdie Image from Folder
+        birdieImage.onload = function () {
+            birdieReady = true;
+        };
+        birdieImage.src = "birdie.png";
+
+        // Pulls racket Image from Folder
+        racketImage.onload = function () {
+            racketReady = true;
+        };
+        racketImage.src = "racket.png";
+
+        // Pulls bowling Ball Image from Folder
+        bowlingBallImage.onload = function () {
+            bowlingBallReady = true;
+        };
+        bowlingBallImage.src = "bowlingBall.png";
+
+        // Sets up Buttons for use
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+
+// If User clickes "Start Game" Button or clicks "OK" after the alert pops up, resets variables so user can replay the game without clicking "Refresh"
+        function startGame() {
+
+            p1x = 100;
+            p1y = 310;
+            p1speed = 2;
+            p1dx = 50;
+            p1dy = 50;
+            p1Score = 0;
+            p1Lives = 1;
+
+            rx = 180;
+            ry = 350;
+            rSpeed = 2;
+            rdx = 50;
+            rdy = 50;
+
+            bx = 300;
+            by = 300;
+            bSpeed = 3;
+            bdx = bSpeed - 2;
+            bdy = -bSpeed;
+
+            bBx = 300;
+            bBy = 100;
+            bBSpeed = 4;
+            bBdx = bSpeed - 2;
+            bBdy = -bSpeed;
+
+
+            p1DPressed = false;
+            p1APressed = false;
+
+            rDPressed = false;
+            rAPressed = false;
+
+            collided = false;
+
+        }
+
+
+        // Allows Canvas Lines
+        function line(x1, y1, x2, y2, ) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+        // display Player1's Score
+        function displayp1Score() {
+            ctx.font = "42px Arial";
+            ctx.fillStyle = "black";
+            var p1ScoreStr = "P1Score:" + p1Score;
+            ctx.fillText(p1ScoreStr, 10, 50);
+        }
+
+        // check for collision with birdie (P1) Doesn't need Bouncing Collision
+              // If collided = Forces automatic bouncings to flip
+        function getBirdieP1() {
+            if (p1x <= (bx + birdieImage.width) && bx <= (p1x + p1Image.width)) {
+                if (p1y <= (by + birdieImage.height) && by <= (p1y + p1Image.height)) {
+                    p1Lives = p1Lives - 1;
+                }
+            }
+        }
+  
+        // check for collison with birdie (Racket)
+              // If collided = Forces automatic bouncings to flip
+        function getBirdieRacket() {
+            if (rx <= (bx + birdieImage.width) && bx <= (rx + racketImage.width)) {
+                if (ry <= (by + birdieImage.height) && by <= (ry + racketImage.height)) {
+                    p1Score = p1Score + 1;
+                    bdx = -bdx;
+                    bdy = -bdy;
+                }
+            }
+        }
+
+      // check for collison with birdie (Netting)     
+       // If collided = Forces automatic bouncings to flip
+       function getBirdieNetting() {
+            if (nx <= (bx + birdieImage.width) && bx <= (nx + nettingImage.width)) {
+                if (ny <= (by + birdieImage.height) && by <= (ny + nettingImage.height)) {
+                    bdx = -bdx;
+                    bdy = -bdy;
+                }
+            }
+        }
+
+        // check for collsion with bowling Ball (P1)
+      // If collided = Forces automatic bouncings to flip
+        function getbowlingBallP1() {
+            if (p1x <= (bBx + bowlingBallImage.width) && bBx <= (p1x + p1Image.width)) {
+                if (p1y <= (bBy + bowlingBallImage.height) && bBy <= (p1y + p1Image.height)) {
+                    bBdx = -bBdx;
+                    bBdy = -bBdy;
+                    p1Lives = p1Lives - 1
+                }
+            }
+        }
+  
+        // check for collison with bowling Ball (Racket)
+      // If collided = Forces automatic bouncings to flip
+        function getbowlingBallRacket() {
+            if (rx <= (bBx + bowlingBallImage.width) && bBx <= (rx + racketImage.width)) {
+                if (ry <= (bBy + bowlingBallImage.height) && bBy <= (ry + racketImage.height)) {
+                    bBdx = -bBdx;
+                    bBdy = -bBdy;
+                    p1Lives = p1Lives - 1
+                }
+            }
+        }
+
+      // check for collison with bowlingBall (Netting)
+      // If collided = Forces automatic bouncings to flip
+      function getbowlingBalleNetting() {
+            if (nx <= (bBx + bowlingBallImage.width) && bBx <= (nx + nettingImage.width)) {
+                if (ny <= (bBy + bowlingBallImage.height) && bBy <= (ny + nettingImage.height)) {
+                    bdx = -bdx;
+                    bdy = -bdy;
+                }
+            }
+        }
+
+
+
+
+        // Maps Keys for Buttons (65 = A) (68 = D)
+        // KeyDown = Pressed = True
+        // KeyUp = Unpressed = False
+        
+        function keyDownHandler(e) {
+            if (e.keyCode == 65) {
+                p1APressed = true;
+                rAPressed = true;
+            } else if (e.keyCode == 68) {
+                p1DPressed = true;
+                rDPressed = true;
+        }
+
+        }
+
+        function keyUpHandler(e) {
+            if (e.keyCode == 68) {
+                p1DPressed = false;
+                rDPressed = false;
+            } else if (e.keyCode == 65) {
+                p1APressed = false;
+                rAPressed = false;
+            }
+        }
+
+        function draw() {
+
+            // Draws and Redraws the Objects on Screen  
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Ground
+            line(0, 450, 800, 450)
+
+            // Draws Netting
+            if (nettingReady) {
+                ctx.drawImage(nettingImage, 600, 200);
+            }
+
+            // Draws P1
+            if (p1Ready) {
+                ctx.drawImage(p1Image, p1x, p1y);
+            }
+
+            //Draws Birdie
+            if (birdieReady) {
+                ctx.drawImage(birdieImage, bx, by)
+            }
+            //      Draws Racket 
+            if (racketReady) {
+                ctx.drawImage(racketImage, rx, ry);
+            }
+
+            //      Draws Bowling Ball 
+            if (bowlingBallReady) {
+                ctx.drawImage(bowlingBallImage, bBx, bBy);
+            }
+
+            // Allows Movement if User presses keys
+            if (p1DPressed == true) {
+                p1dx = p1speed;
+                rdx = rSpeed;
+            } else if (p1APressed == true) {
+                p1dx = -p1speed;
+                rdx = -rSpeed;
+
+            }
+
+            // Prevents Movement if User unpresses keys
+            if (p1DPressed == false && p1APressed == false) {
+                p1dx = 0;
+                p1dy = 0;
+                rdx = 0;
+                rdy = 0;
+
+            }
+
+            // Current Image x/y = Current Image x/y + Changing x/y 
+            p1x = p1x + p1dx;
+            p1y = p1y + p1dy;
+            rx = rx + rdx;
+            ry = ry + rdy;
+            bx = bx + bdx;
+            by = by + bdy;
+            bBx = bBx + bBdx;
+            bBy = bBy + bBdy;
+
+
+            // Creates Boundaries for P1 
+
+            if (p1x < 0) {
+                p1x = 0;
+            }
+
+            if (p1x > 640) {
+                p1x = 640;
+            }
+
+            if (p1y < 220) {
+                p1y = 220;
+            }
+
+            if (p1y > 310) {
+                p1y = 310;
+            }
+
+            // Creates Boundaries for Racket 
+
+            if (rx < 80) {
+                rx = 80;
+            }
+
+            if (rx > 720) {
+                rx = 720;
+            }
+
+            if (ry < 200) {
+                ry = 200;
+            }
+
+            if (ry > 290) {
+                ry = 290;
+            }
+
+            // Allows Birdie to Bounce off two side walls 
+            if (bx <= 0 || bx >= (canvasWidth - birdieImage.width)) {
+                bdx = -bdx;
+            }
+            
+            // Allows Bouncing off Ground
+            if (by >= 373 || by >= (canvasHeight - birdieImage.height)) {
+                // Prevents Movement if Birdie touches the ground and loses game
+                bdy = 0;
+                bdx = 0;
+                p1Lives = p1Lives - 1;
+            }
+           
+           // Prevents birdie from leaving top wall
+            if (by <= 0 || by >= (canvasHeight - birdieImage.height)) {
+                bdy = -bdy;
+            }
+
+
+
+            // Allows Bowling Ball to Bounce off two side walls 
+            if (bBx <= 0 || bBx >= (canvasWidth - bowlingBallImage.width)) {
+                bBdx = -bBdx;
+            }
+
+            // Allows Bouncing off Ground
+            if (bBy >= 373 || by >= (canvasHeight - bowlingBallImage.height)) {
+                // Prevents Movement if Bowling Ball touches the ground
+                bBdy = -bBdx;
+                bBdx = -bBdy;
+            }
+
+            // Allows bouncing off the top wall
+            if (bBy <= 0 || bBy >= (canvasHeight - bowlingBallImage.height)) {
+                bBdy = -bBdy;
+            }
+  
+
+            //Allows Collison between P1 and Birdie
+            getBirdieP1();
+
+            // Allows Collsion between Racket and Birdie 
+            getBirdieRacket();
+ 
+            // Allows Bouncing between Netting and Birdie
+            getBirdieNetting();
+
+            // Allows Bouncing between Bowling Ball and P1
+            getbowlingBallP1();
+
+            // Allows Bouncing between Bowling Ball and Racket
+            getbowlingBallRacket();
+
+            // Displays Score in Corner
+            displayp1Score()
+
+            // If the p1 lose, gives message and option to play again
+            if (p1Lives == 0) {
+                alert("You lose. Please, play again. Press Ok if you want to play again");
+                startGame();
+
+            }
+             
+            // If the p1 wins, gives message and option to play again 
+            if (p1Score == 17) {
+                alert("You Win!, Press Ok if you want to play again")
+                startGame();
+            }
+
+
+        }
+
+            setInterval(draw, 10);
+
+
+        
+
+
+    </script>
+
+    <br>
+
+    <h1> Stickminton </h1>
+
+    <h2> Instructions Scroll Down for Game Rules </h2>
+
+    <h4> Hit back as many birdies you can before the birdie hits the floor while avoiding the bowling ball! Hit the birdie 16 times and you win which won't be easy</h4>
+
+    <h4> Just like Real Badminton, the birdie will only continue bouncing if the birdie touches the top of the racket</h4>
+
+    <h4> You Like to play risky? Try hitting the birdie on the side of racket to instantly win the game. Be careful, if you miss, you will most likely lose.</h4>
+
+    <h4> If the birdie touches any part of player 1's body, you lose!</h4>
+
+    <h4> The birdie and bowling ball bounce off the netting as well</h4>
+
+    <h4> If the Birdie gets Stuck in the corner, it's your fault so restart your game</h4>
+
+    <h3> D = Move Character Right</h3>
+
+    <h3> A = Move Character Left</h3>
+
+
+</body>
+
+</html>

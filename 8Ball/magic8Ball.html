@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script> 
+
+function randSaying() {
+	var number = Math.floor(Math.random() * 20)+1;  
+	return number;
+}
+
+function shaken(){
+
+	if (document.getElementById("question").value === ""){
+		window.alert("Please enter a question");
+	}else{
+	document.getElementById('shaking').innerHTML = 'shaking....';
+	
+	 
+	document.getElementById('8Ball').src= '8Ball1.png';
+	
+	setTimeout(function(){ 
+		document.getElementById('8Ball').src= '8Ball2.png'; 
+	}, 200);
+	
+	setTimeout(function(){ 
+		document.getElementById('8Ball').src= '8Ball3.png';
+	}, 400);
+	
+	setTimeout(function(){
+		document.getElementById('8Ball').src= '8Ball4.png';
+	}, 600);
+	
+	setTimeout(function(){ 
+		document.getElementById('8Ball').src= '8Ball5.png';
+	}, 800);
+	
+	setTimeout(function(){
+		document.getElementById('8Ball').src= '8Ball6.png';
+	}, 1000);
+
+	setTimeout(function(){ 
+		answerQuestion();
+	}, 1200);
+	}	
+}
+
+function answerQuestion(){
+	
+		saying = randSaying();
+		document.getElementById('shaking').innerHTML = 'The magic 8 Ball Says..... ';
+		var chooseImage = "8Ball"+saying+".png"
+		document.getElementById('8Ball').src= chooseImage
+	
+	
+}
+
+function reset(){
+	document.getElementById('question').value = "";
+	document.getElementById('shaking').innerHTML = '---------------';
+	document.getElementById('8Ball').src= '8Ball0.png';
+
+
+}
+
+</script>
+
+
+<h1 style = "text-align: center">Magic 8 Ball</h1>
+<p id = "shaking" style = "text-align: center;display:block">--------</p>
+
+<img id="8Ball" src="8Ball0.png" style="width:350px;height:350px;display:block;margin:auto">
+
+
+<br>
+<p style = "text-align: center">Type in the question you would like the Magic 8 Ball to answer</p>
+<br>
+<input onfocus = "reset()" type="text" id="question" value="" size = "20" style= "display:block;margin: auto">
+<br>
+
+<button style= "display:block;margin: auto" onclick="shaken();">Shake The Eight Ball</button>
+
+</body>
+</html>
+
+
+The HTML part won’t be discussed here as you should be able to understand that on your own.
+
+Let’s take a look at what’s between the <script>   </script> tags, in otherwords,  the JavaScript code.
+
+function randSaying() {
+	var number = Math.floor(Math.random() * 20)+1;  
+	return number;
+}
